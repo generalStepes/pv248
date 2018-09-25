@@ -7,8 +7,8 @@ def load(filename):
         except:
             continue
         if splitLine[0] == "Print Number":
-            object = Print(splitLine[1])
-            print (object.print_id)
+            print_id = splitLine[0]
+
 
 
 class Print:
