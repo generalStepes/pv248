@@ -221,7 +221,7 @@ def returnStuff(item):
 
     incipit = item.edition.composition.incipit
     if incipit is None: incipit = ""
-    returnValue += "Incipit: " + incipit +"\n"
+    returnValue += "Incipit: " + incipit
 
     return(returnValue)
 
