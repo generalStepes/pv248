@@ -1,82 +1,74 @@
 import sys
 import re
 
-def returnAbr(name):
-    part = ""
-    for item in (name.split(" ")):
-        if (item[0:1] != "(") and (item[0:1] != " ") and (item[0:1] != ""):
-            part += (item[0:1] + ".")
-    return part
+personDict = {}
+centuryDict = {}
 
+def parsePerson(line):
+    personList = (line.split(";"))
+    personObject = []
+    # remove spaces
+    for index, person in enumerate(personList):
+        person = person.strip()
+        #if person.find("Teleman") != -1: print(person)
+        if (re.search(r'\d', person)) is not None:
+            person = person.split("(")[0]
+            person = person.strip()
+        checker = False
+        for item in personObject:
+            if (item==person): checker = True
+        if checker==False:
+            personObject.append(person)
+    return personObject
 
-def storeToDict(regExp, lineContent, lineEnd):
-        #print (lineContent[regExp.start():regExp.end()-1])
-        #print (lineContent[regExp.end()+1:lineEnd.start()])
-        if (lineContent[regExp.start():regExp.end()-1]) != "Print Number" and lineEnd is not None:
-            if (lineContent[regExp.start():regExp.end() - 1]) == "Composer":
-                for name in (lineContent[regExp.end() + 1:lineEnd.start()]).split("; "):
-                    nameHelper = (name[name.find(", "):])
-                    if (nameHelper[3:4]) != ".":
-                        if (nameHelper[3:4]) == "" and (nameHelper[2:3]) != "":
-                            name = (name[:name.find(", ")] + nameHelper + ".")
-                        else:
-                            part = returnAbr(nameHelper[2:])
-                            name = (name[:name.find(", ")] + " " + part)
-                            # check for brackets
-                            if name.find("(") != -1: name = name[:name.find("(")]
-                            # check for empty name
-                dict[lineContent[regExp.start():regExp.end() - 1]] = name
+def addPersonToArr(person):
+    if person in personDict:
+        personDict[person] += 1
+    if person not in personDict:
+        personDict[person] = 1
 
-            else:
-                dict[lineContent[regExp.start():regExp.end()-1]] = lineContent[regExp.end()+1:lineEnd.start()]
-        if (lineContent[regExp.start():regExp.end() - 1]) == "Incipit":
-            return dict
+def parseCentury(century):
+    centuryParsed = None
+    century = century.strip()
+    try:
+        centuryParsed = re.search(r"[0-9]{4}", century)
+        centuryParsed = (int(centuryParsed.group()))
+    except:
+        pass
+    if century.find("th") != -1:
+        centuryFinder = century.find("th")
+        centuryParsed = century[centuryFinder-2:centuryFinder] + "00"
+        centuryParsed = int(centuryParsed)
 
-def storeComposer(line):
-    if line["Composer"] in composerList:
-        composerList[line["Composer"]] += 1
-    else:
-        composerList[line["Composer"]] = 1
+    if centuryParsed is not None:
+        centuryParsed = (1 + (centuryParsed - 1) // 100)
+        if centuryParsed in centuryDict:
+            centuryDict[centuryParsed] += 1
+        if centuryParsed not in centuryDict:
+            centuryDict[centuryParsed] = 1
 
-
-def storeCentury(line):
-    rCentury = re.compile(r"[0-9]{4}")
-    rCenturyCompiled = rCentury.search(line["Composition Year"])
-    if rCenturyCompiled is not None:
-        if int(int(rCenturyCompiled.group())/100+1) in centuryList:
-            centuryList[int(int(rCenturyCompiled.group())/100+1)] += 1
-        else:
-            centuryList[int(int(rCenturyCompiled.group())/100+1)] = 1
-
-
-rDot = re.compile(r"(.*):")
-rLine = re.compile(r"\n")
-dict = {}
-dictArray = []
-composerList = {}
-centuryList = {}
-
-for line in open(sys.argv[1], 'r', encoding="utf8"):
-    regResp = rDot.search(line)
-    regRespLine = rLine.search(line)
-    if regResp is None:
-        continue
-    else:
-
-                oneRecord = storeToDict(regResp, line, regRespLine)
-                # skip none records
-                if oneRecord is not None:
-                    # skip those records with empty composer
-                    if len(oneRecord["Composer"]) > 1:
-                        storeComposer(oneRecord)
-                        storeCentury(oneRecord)
-                        dictArray.append(oneRecord)
+for line in open(sys.argv[1], 'r'):
+    splitLine = (line.split(":"))
+    try:
+        splitLine[1] = (splitLine[1].strip())
+    except:
+        pass
+    #if splitLine[0] == "Print Number": print(splitLine[1])
+    if splitLine[0] == "Composer":
+        for person in parsePerson(splitLine[1]):
+            addPersonToArr(person)
+    if splitLine[0] == "Composition Year":
+            parseCentury(splitLine[1])
 
 if sys.argv[2] == "composer":
-    for composer in composerList.keys():
+    for item in personDict:
+        if item != "":
+            print (item + ": " + str(personDict[item]))
 
-        print (composer + ": " + str(composerList[composer]))
-        # storeToDict(line,regResp.group())
 if sys.argv[2] == "century":
-    for century in centuryList.keys():
-        print (str(century) + "th century" + ": " + str(centuryList[century]))
+    for item in centuryDict:
+        if item == 21:
+            helperStr = "st"
+        else:
+            helperStr = "th"
+        print (str(item) + helperStr + " century: " + str(centuryDict[item]))
