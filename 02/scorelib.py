@@ -171,7 +171,7 @@ def returnStuff(item):
         if element.born is not None and element.died is None:
             composer += " (" + str(element.born) + "--" + "); "
         if element.born is None and element.died is not None:
-            composer += " (+" + str(element.died) + "); "
+            composer += " (--" + str(element.died) + "); "
         if element.born is None and element.died is None: composer += "; "
         composerReturn += composer
     composerReturn= composerReturn.rstrip("; ")
