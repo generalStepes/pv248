@@ -72,21 +72,24 @@ def parsePartiture(partiture):
 
 def parseEditor(editors):
     editorList = []
-    editors = editors.split(" ")
+    editors = editors.strip(" ")
+    try:
+        editors = editors[:editors.find("(")]
+    except:
+        pass
+    editors = editors.split(",")
     for index, item in enumerate(editors):
-        item = item.strip(",")
         item = item.strip(" ")
-        item = item.strip(",")
+        subItem = item.split(" ")
+        surname = subItem[len(subItem)-1]
+        name = ""
+        for i in range(0,len(subItem)-1):
+            name += subItem[i] + " "
         editors[index] = item
-    if len(editors) > 1:
-        i = 1
-        while i < len(editors):
-            editorList.append(editors[i-1] + " " + editors[i])
-            i += 2
-    else:
-            editorList.append(editors[0])
+        name = name.strip(" ")
+        editorList.append(Person(name + " " + surname, None, None))
+    return editorList
 
-    return(editorList)
 
 
 def parseCompo(compoStuff):
@@ -199,7 +202,7 @@ def returnStuff(item):
 
     author = ""
     for element in (item.edition.authors):
-        author += element + ", "
+        author += element.name + ", "
     author = author.strip(", ")
     returnValue += "Editor: " + author + "\n"
 
