@@ -16,7 +16,7 @@ def load(filename):
         else:
             lineBreak = False
         if splitLine[0] == "Print Number":
-            print_id = splitLine[1]
+            print_id = int(splitLine[1])
 
         # edition
         if splitLine[0] == "Edition":
@@ -161,7 +161,7 @@ def parseDate(item):
         return None,None
 
 def returnStuff(item):
-    returnValue = "Print Number: " + item.print_id + "\n"
+    returnValue = "Print Number: " + str(item.print_id) + "\n"
 
     composerReturn = ""
     for element in (item.edition.composition.authors):
