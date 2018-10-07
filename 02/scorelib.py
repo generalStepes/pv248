@@ -2,7 +2,6 @@ import re
 
 def load(filename):
     printArray = []
-    compoArray = []
     voiceArray = []
     personArray = []
     for line in open(filename, 'r'):
@@ -30,7 +29,9 @@ def load(filename):
         if splitLine[0] == "Incipit": incipit = parseCompo(splitLine[1])
         if splitLine[0] == "Key": key = parseCompo(splitLine[1])
         if splitLine[0] == "Genre": genre = parseCompo(splitLine[1])
-        if splitLine[0] == "Composition Year": compoYear = parseCompo(splitLine[1])
+        if splitLine[0] == "Composition Year":
+            compoYear = parseCompo(splitLine[1])
+            if compoYear is not None and len(compoYear) == 4 : compoYear = int(compoYear)
 
 
         if splitLine[0] == "Partiture":
@@ -110,6 +111,7 @@ def parseVoice(voice):
             name += voice + ", "
     name = name.rstrip(", ")
     if range =="": range = None
+    if name == "": name = None
     return (Voice(name,range))
 
 def parsePerson(line):
@@ -194,7 +196,7 @@ def returnStuff(item):
 
     compoYear = item.edition.composition.year
     if compoYear is None: compoYear = ""
-    returnValue += "Composition Year: " + compoYear + "\n"
+    returnValue += "Composition Year: " + str(compoYear) + "\n"
 
     edition = item.edition.name
     if edition is None: edition = ""
@@ -211,7 +213,8 @@ def returnStuff(item):
     for element in (item.edition.composition.voices):
         voice += "Voice " + str(i) + ": "
         if element.range is not None: voice += element.range + ", "
-        voice += element.name + "\n"
+        if element.name is not None: voice += element.name + "\n"
+        else: voice += "\n"
         i += 1
     returnValue += voice
 
