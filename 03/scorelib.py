@@ -75,9 +75,10 @@ def parseEditor(editors):
     editorList = []
     editors = editors.strip(" ")
     try:
-        editors = editors[:editors.find("(")]
+        if editors.find("(") != -1: editors = editors[:editors.find("(")]
     except:
         pass
+    editors = editors.strip(" ")
     editors = editors.split(",")
     for index, item in enumerate(editors):
         item = item.strip(" ")
@@ -88,7 +89,9 @@ def parseEditor(editors):
             name += subItem[i] + " "
         editors[index] = item
         name = name.strip(" ")
-        editorList.append(Person(name + " " + surname, None, None))
+
+        if name != "": editorList.append(Person(name + " " + surname, None, None))
+        else: editorList.append(Person(surname, None, None))
     return editorList
 
 
