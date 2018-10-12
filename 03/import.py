@@ -4,13 +4,28 @@ from scorelib import load
 import sys
 
 def lookupCompoAuthor(data):
-    for author in (data.edition.composition.authors):
+    compoAuthorArr = []
+    for author in data.edition.composition.authors:
         for row in c.execute("Select id from person where name=?", (author.name,)):
-            return(row[0])
+            compoAuthorArr.append(row[0])
+    return(compoAuthorArr)
+
+def lookupEditionAuthor(data):
+    authorArr = []
+    for author in data.edition.authors:
+        for row in c.execute("Select id from person where name=?", (author.name,)):
+            authorArr.append(row[0])
+    return(authorArr)
+
+def storeEditionAuthor(editionID, authorID):
+    for author in authorID:
+        c.execute("INSERT INTO edition_author(edition, editor) VALUES  (?, ?)", (editionID, author))
+        conn.commit()
 
 def storeScoreAuthor(compoID, authorID):
-    c.execute("INSERT INTO score_author(score, composer) VALUES  (?, ?)", (compoID, authorID))
-    conn.commit()
+    for author in authorID:
+        c.execute("INSERT INTO score_author(score, composer) VALUES  (?, ?)", (compoID, author))
+        conn.commit()
 
 
 os.system("sqlite3 scorelib.dat < scorelib.sql")
@@ -45,10 +60,10 @@ for record in data:
 for record in data:
     c.execute("INSERT INTO score(name, genre, key, incipit, year) VALUES  (?, ?, ?, ?, ?)", (record.edition.composition.name, record.edition.composition.genre, record.edition.composition.key, record.edition.composition.incipit, record.edition.composition.year))
     conn.commit()
-    compoAuthor = lookupCompoAuthor(record)
+    compoAuthors = lookupCompoAuthor(record)
     for item in (c.execute("Select max(id) from score")):
         compoID = item[0]
-    storeScoreAuthor(compoID,compoAuthor)
+    storeScoreAuthor(compoID,compoAuthors)
 
 # store voices
 for record in data:
@@ -56,6 +71,23 @@ for record in data:
         c.execute("INSERT INTO voice(number, score, range, name) VALUES  (?, ?, ?, ?)", (index+1, compoID, voice.range, voice.name))
         conn.commit()
 
-#for row in c.execute("Select * from voice"):
- #for line in row:
-#    print (line)
+# store edition
+for record in data:
+        c.execute("INSERT INTO edition(score, name, year) VALUES  (?, ?, ?)", (compoID, record.edition.name, "NULL"))
+        conn.commit()
+        editionAuthors = lookupEditionAuthor(record)
+        for item in (c.execute("Select max(id) from edition")):
+            editionID = item[0]
+        storeEditionAuthor(editionID, editionAuthors)
+
+
+# store print
+for record in data:
+    c.execute("INSERT INTO print(id, partiture, edition) VALUES  (?, ?, ?)", (record.print_id, record.partiture, editionID))
+    conn.commit()
+
+
+
+
+for row in c.execute("Select * from score natural join score_author natural join person"):
+   print(row)
