@@ -3,6 +3,28 @@ import os
 from scorelib import load
 import sys
 
+def storeVoices(compoID, record):
+    # store voices
+        for index, voice in enumerate(record.edition.composition.voices):
+            c.execute("INSERT INTO voice(number, score, range, name) VALUES  (?, ?, ?, ?)", (index+1, compoID, voice.range, voice.name))
+            conn.commit()
+
+def storeEdition(compoID, record):
+    # store edition
+        c.execute("INSERT INTO edition(score, name, year) VALUES  (?, ?, ?)", (compoID, record.edition.name, None))
+        conn.commit()
+        editionAuthors = lookupEditionAuthor(record)
+        for item in (c.execute("Select max(id) from edition")):
+            editionID = item[0]
+        storeEditionAuthor(editionID, editionAuthors)
+        storePrint(editionID, record)
+
+def storePrint(editionID, record):
+    # store print
+    c.execute("INSERT INTO print(id, partiture, edition) VALUES  (?, ?, ?)", (record.print_id, record.partiture, editionID))
+    conn.commit()
+
+
 def lookupCompoAuthor(data):
     compoAuthorArr = []
     for author in data.edition.composition.authors:
@@ -31,7 +53,7 @@ def storeScoreAuthor(compoID, authorID):
 os.system("sqlite3 scorelib.dat < scorelib.sql")
 data = load(sys.argv[1])
 
-conn = sqlite3.connect('scorelib.dat')
+conn = sqlite3.connect(sys.argv[2])
 conn.text_factory = str
 
 c = conn.cursor()
@@ -42,18 +64,16 @@ for record in data:
         checker = False
         for row in c.execute("Select name from person"):
             if author.name == row[0]: checker = True
-
         if checker == False: c.execute("INSERT INTO person(name, born, died) VALUES  (?, ?, ?)", (author.name, author.born, author.died))
         conn.commit()
-
-# store edition authors
-for record in data:
+    # store edition authors
     for author in (record.edition.authors):
         checker = False
         for row in c.execute("Select name from person"):
             if author.name == row[0]: checker = True
         if checker == False: c.execute("INSERT INTO person(name, born, died) VALUES  (?, ?, ?)", (author.name, None, None))
         conn.commit()
+
 
 
 # store composition
@@ -64,30 +84,15 @@ for record in data:
     for item in (c.execute("Select max(id) from score")):
         compoID = item[0]
     storeScoreAuthor(compoID,compoAuthors)
-
-# store voices
-for record in data:
-    for index, voice in enumerate(record.edition.composition.voices):
-        c.execute("INSERT INTO voice(number, score, range, name) VALUES  (?, ?, ?, ?)", (index+1, compoID, voice.range, voice.name))
-        conn.commit()
-
-# store edition
-for record in data:
-        c.execute("INSERT INTO edition(score, name, year) VALUES  (?, ?, ?)", (compoID, record.edition.name, "NULL"))
-        conn.commit()
-        editionAuthors = lookupEditionAuthor(record)
-        for item in (c.execute("Select max(id) from edition")):
-            editionID = item[0]
-        storeEditionAuthor(editionID, editionAuthors)
+    storeVoices(compoID, record)
+    storeEdition(compoID, record)
 
 
-# store print
-for record in data:
-    c.execute("INSERT INTO print(id, partiture, edition) VALUES  (?, ?, ?)", (record.print_id, record.partiture, editionID))
-    conn.commit()
+#for row in c.execute("Select * from print join edition on print.edition=edition.id join score_author on edition.id=score_author.score join person on score_author.composer=person.id"):
+#  print(row)
 
+#for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
+#    print(row)
 
-
-
-for row in c.execute("Select * from score natural join score_author natural join person"):
-   print(row)
+for row in c.execute("Select * from print"):
+    print(row)
