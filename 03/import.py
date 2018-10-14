@@ -106,5 +106,5 @@ for record in data:
 #for row in c.execute("Select * from print join edition on print.edition=edition.id join score_author on edition.id=score_author.score join person on score_author.composer=person.id"):
 #  print(row)
 
-for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
-    print(row)
+#for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
+#    print(row)
