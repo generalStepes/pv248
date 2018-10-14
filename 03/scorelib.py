@@ -91,7 +91,8 @@ def parseEditor(editors):
         name = name.strip(" ")
 
         if name != "": editorList.append(Person(name + " " + surname, None, None))
-        else: editorList.append(Person(surname, None, None))
+        else:
+            if surname != "": editorList.append(Person(surname, None, None))
     return editorList
 
 

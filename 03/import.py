@@ -50,7 +50,7 @@ def storeScoreAuthor(compoID, authorID):
         conn.commit()
 
 
-os.system("sqlite3 scorelib.dat < scorelib.sql")
+os.system("sqlite3 " + sys.argv[2] + " < scorelib.sql")
 data = load(sys.argv[1])
 
 conn = sqlite3.connect(sys.argv[2])
@@ -65,13 +65,28 @@ for record in data:
         for row in c.execute("Select name from person"):
             if author.name == row[0]: checker = True
         if checker == False: c.execute("INSERT INTO person(name, born, died) VALUES  (?, ?, ?)", (author.name, author.born, author.died))
+        if checker == True:
+            for row in c.execute("Select * from person"):
+                if author.name == row[3]:
+                    if author.born is not None and row[1] is None:
+                        c.execute("UPDATE person SET born=(?) where id=(?)", (author.born, row[0], ))
+                    if author.died is not None and row[2] is None:
+                        c.execute("UPDATE person SET died=(?) where id=(?)", (author.died, row[0], ))
         conn.commit()
+
     # store edition authors
     for author in (record.edition.authors):
         checker = False
         for row in c.execute("Select name from person"):
             if author.name == row[0]: checker = True
         if checker == False: c.execute("INSERT INTO person(name, born, died) VALUES  (?, ?, ?)", (author.name, None, None))
+        if checker == True:
+            for row in c.execute("Select * from person"):
+                if author.name == row[3]:
+                    if author.born is not None and row[1] is None:
+                        c.execute("UPDATE person SET born=(?) where id=(?)", (author.born, row[0], ))
+                    if author.died is not None and row[2] is None:
+                        c.execute("UPDATE person SET died=(?) where id=(?)", (author.died, row[0], ))
         conn.commit()
 
 
@@ -91,8 +106,5 @@ for record in data:
 #for row in c.execute("Select * from print join edition on print.edition=edition.id join score_author on edition.id=score_author.score join person on score_author.composer=person.id"):
 #  print(row)
 
-#for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
-#    print(row)
-
-for row in c.execute("Select * from print"):
+for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
     print(row)
