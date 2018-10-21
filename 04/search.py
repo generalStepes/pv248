@@ -23,6 +23,18 @@ def fetchEditor(edition):
         personArr.append(row[0])
     return personArr
 
+def fetchComposer(scoreID):
+    personArr = []
+    for index, row in enumerate(c.execute("Select person.name, person.born, person.died from score_author join person on score_author.composer=person.id where score_author.score=(?)", (scoreID, ))):
+        personArr.append({})
+        personArr[-1]["Name"]=row[0]
+        if (personArr[-1]["Name"]) is None: personArr[-1].pop("Name")
+        personArr[-1]["Born"]=row[1]
+        if (personArr[-1]["Born"]) is None: personArr[-1].pop("Born")
+        personArr[-1]["Died"]=row[2]
+        if (personArr[-1]["Died"]) is None: personArr[-1].pop("Died")
+    return personArr
+
 conn = sqlite3.connect("scorelib.dat")
 conn.text_factory = str
 authorDict = {}
@@ -62,7 +74,8 @@ for row in list(rows):
         if len(voiceDict) > 0: currentIndex["Voices"] = voiceDict
         editorArr = fetchEditor(row[11])
         if len(editorArr) > 0: currentIndex["Editor"] = editorArr
-
+        personArr = fetchComposer(row[10])
+        if len(personArr) > 0: currentIndex["Composer"] = personArr
 
 print(json.dumps(authorDict, ensure_ascii=False, indent=2 ))
 

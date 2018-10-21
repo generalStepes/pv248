@@ -105,8 +105,8 @@ for record in data:
     storeEdition(compoID, record)
 
 
-#for row in c.execute("Select * from edition_author"):
- # print(row)
+#for row in c.execute("Select * from score_author"):
+# print(row)
 
 #for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
 #    print(row)
