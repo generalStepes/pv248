@@ -3,8 +3,8 @@ import sys
 import json
 
 def parsePart(row):
-    if row == "0": return "False"
-    if row == "1": return "True"
+    if row == "0": return False
+    if row == "1": return True
 
 def fetchVoices(score):
     voiceDict = {}
