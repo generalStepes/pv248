@@ -3,6 +3,12 @@ import os
 from scorelib import load
 import sys
 
+def checkScoreExits(record):
+    for row in c.execute("Select score.name, score.id from score"):
+      if (record.edition.composition.name == row[0]):
+          return row[1]
+    return -1
+
 def storeVoices(compoID, record):
     # store voices
         for index, voice in enumerate(record.edition.composition.voices):
@@ -95,18 +101,21 @@ for record in data:
 
 # store composition
 for record in data:
-    c.execute("INSERT INTO score(name, genre, key, incipit, year) VALUES  (?, ?, ?, ?, ?)", (record.edition.composition.name, record.edition.composition.genre, record.edition.composition.key, record.edition.composition.incipit, record.edition.composition.year))
-    conn.commit()
+    returnedScore = checkScoreExits(record)
+    if returnedScore == -1:
+        c.execute("INSERT INTO score(name, genre, key, incipit, year) VALUES  (?, ?, ?, ?, ?)", (record.edition.composition.name, record.edition.composition.genre, record.edition.composition.key, record.edition.composition.incipit, record.edition.composition.year))
+        conn.commit()
+        for item in (c.execute("Select max(id) from score")):
+            compoID = int(item[0])
+    else: compoID = returnedScore
     compoAuthors = lookupCompoAuthor(record)
-    for item in (c.execute("Select max(id) from score")):
-        compoID = item[0]
     storeScoreAuthor(compoID,compoAuthors)
     storeVoices(compoID, record)
     storeEdition(compoID, record)
 
 
-#for row in c.execute("Select * from score_author"):
-# print(row)
+ #for row in c.execute("Select person.name from person"):
+ # print(row)
 
 #for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
 #    print(row)
