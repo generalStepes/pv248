@@ -30,12 +30,27 @@ for line in file:
    constant = int(lineSplit[1].strip(" "))
    for index, letter in enumerate(lineSplit[0]):
         if (letter.isalpha() == True):
-            coefficient = lineSplit[0][index-1]
+            i = -1
+            coefficient = ""
+            negate = False
+            while True:
+                curPos = lineSplit[0][index+i]
+                if curPos == "" or curPos == "-" or curPos== " ":
+                    if lineSplit[0][index+i-1] == "-": negate = True
+                    break
+                else:
+                    coefficient =  curPos + coefficient
+                i = i - 1
+            #coefficient = lineSplit[0][index-1]
             if letter != lineSplit[0][index]: coefficientArr.append(0)
             if coefficient == " " or coefficient == "": coefficient = 1
             if coefficient == "-": coefficient = -1
             else: coefficient = int(coefficient)
-            if lineSplit[0][index-2] == "-": coefficient = coefficient * -1
+            if negate == True:
+                coefficient = str(coefficient)
+                coefficient = "-" + coefficient
+                coefficient = int(coefficient)
+            #if lineSplit[0][index-2] == "-": coefficient = coefficient * -1
             for index2, alfa in enumerate(usedAlfa):
                 if alfa == lineSplit[0][index]: coefficientArr[index2] = (coefficient)
    leftMatrix.append(coefficientArr)
@@ -47,12 +62,11 @@ matrixRank = np.linalg.matrix_rank(leftMatrixN)
 rightMatrixN = (np.expand_dims(rightMatrixN, axis=1))
 extendedMatrix = (np.hstack((leftMatrixN, rightMatrixN)))
 
-
 try:
     results = np.linalg.solve(leftMatrix, rightMatrix)
     resultStr = "solution: "
     for index, item in enumerate(results):
-        resultStr = resultStr + (usedAlfa[index] + "=" + str(item) + ", ")
+        resultStr = resultStr + (usedAlfa[index] + " = " + str(item) + ", ")
     resultStr = resultStr.strip(", ")
     print(resultStr)
 except:
