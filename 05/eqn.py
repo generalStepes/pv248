@@ -7,7 +7,6 @@ lineArr = []
 usedAlfa = []
 
 def usedAlfaFun(file):
-    file = open(sys.argv[1], "r")
     lineCounter = 0
     for line in file:
        lineArr.append(line)
@@ -19,8 +18,9 @@ def usedAlfaFun(file):
     return usedAlfa
 
 
-usedAlfa = usedAlfaFun(file)
+
 file = open(sys.argv[1], "r")
+usedAlfa = usedAlfaFun(open(sys.argv[1], "r"))
 for line in file:
    coefficientArr = []
    for letter in usedAlfa:
@@ -60,6 +60,7 @@ leftMatrixN = np.array(leftMatrix)
 rightMatrixN = np.array(rightMatrix)
 matrixRank = np.linalg.matrix_rank(leftMatrixN)
 rightMatrixN = (np.expand_dims(rightMatrixN, axis=1))
+
 extendedMatrix = (np.hstack((leftMatrixN, rightMatrixN)))
 
 try:
