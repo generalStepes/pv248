@@ -1,6 +1,7 @@
 import wave
 import struct
 import numpy as np
+import sys
 
 max = 0
 min = 0
@@ -29,7 +30,7 @@ def returnAvg(data, framerate):
     return (average * threshold, absArr)
 
 
-sound_file = wave.open("mono.wav", "r")
+sound_file = wave.open(sys.argv[1], "r")
 framerate = sound_file.getframerate()
 nOfFrames = sound_file.getnframes()
 nOfChannels = sound_file.getnchannels()
