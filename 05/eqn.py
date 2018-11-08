@@ -14,7 +14,6 @@ def usedAlfaFun(file):
            if letter.isalpha()== True:
                if letter not in usedAlfa: usedAlfa.append(letter)
        lineCounter = lineCounter + 1
-
     return usedAlfa
 
 
@@ -71,9 +70,10 @@ try:
     resultStr = resultStr.strip(", ")
     print(resultStr)
 except:
-    if len(usedAlfa) != len(leftMatrixN):
-            spaceDim = len(usedAlfa) - len(leftMatrixN)
+    if len(usedAlfa) != matrixRank:
+            spaceDim = len(usedAlfa) - matrixRank
             print("solution space dimension: " + str(spaceDim))
 
-    if np.linalg.matrix_rank(extendedMatrix) != matrixRank:
-        print("no solution")
+    else:
+        if np.linalg.matrix_rank(extendedMatrix) != matrixRank:
+            print("no solution")
