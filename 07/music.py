@@ -6,12 +6,16 @@ from math import log2, pow
 
 max = 0
 min = 0
-A4 = 440
+A4 = int(sys.argv[1])
 C0 = A4*pow(2, -4.75)
 name = ["c", "cis", "d", "es", "e", "f", "fis", "g", "gis", "a", "bes", "b"]
+peaksArr = []
 
 def pitch(freq):
-    h = round(12*log2(freq/C0))
+    h = 12*log2(freq/C0)
+    deviation = h
+    h = round(h)
+    deviation = round((deviation - h) * 100)
     n = h % 12
     totalName = name[n]
     if h // 12 < 2:
@@ -23,11 +27,13 @@ def pitch(freq):
     if h // 12 > 2:
         for item in range(0,h // 12 - 3):
             totalName = totalName + "’"
-
+    if deviation > 0: totalName = totalName + ("+") + str(deviation)
+    else: totalName + str(deviation)
     return totalName
 
 
 def structUnpackFun(frames, nOfFrames):
+    nOfFrames = int(nOfFrames)
     data = struct.unpack(str(nOfFrames) + "h", frames)
     return data
 
@@ -39,36 +45,80 @@ def convertStereo(data):
             else:
                 tempVar = (tempVar + data[i]) / 2
                 tempVarArr.append(tempVar)
-    data=np.array(tempVarArr)
+    data=tempVarArr
     return data
 
 def returnAvg(data, framerate):
     threshold = 20
-    average = np.fft.rfft(data) / framerate
-    average = np.abs(average)
-    absArr = average
-    average = np.average(average)
-    return (average * threshold, absArr)
+    amplNp = np.fft.rfft(data)
+    amplNp = np.abs(amplNp)
+
+    avgAmpl = sum(amplNp) / len(amplNp)
+    return (avgAmpl*20, amplNp)
 
 
-sound_file = wave.open(sys.argv[1], "r")
+sound_file = wave.open(sys.argv[2], "r")
 framerate = sound_file.getframerate()
 nOfFrames = sound_file.getnframes()
 nOfChannels = sound_file.getnchannels()
-repeated = int(nOfFrames/framerate)
-print(repeated)
-frames = sound_file.readframes(framerate)
+repeated = int(nOfFrames/framerate)*10
+duration = nOfFrames/framerate
+frames = sound_file.readframes(int(framerate))
 data = structUnpackFun(frames, nOfChannels * framerate)
-data = np.array(data)
+
+
 
 if (nOfChannels == 2): data = convertStereo(data)
-print(data)
-np.array_split(data,repeated)
-print(data[0])
 
-average, absArr = returnAvg(data, framerate)
+winPos = 0.1
+globalPeaks = []
+
+for i in range(0,repeated):
+    currWindPeaks = []
+    amplAvg, amplArr = returnAvg(data, framerate)
 
 
-for index, item in enumerate(absArr):
-    if item > average:
-        print(pitch(index))
+    for index, amplitude in enumerate(amplArr):
+        if amplitude >= amplAvg:
+            currWindPeaks.append([])
+            currWindPeaks[-1].append(index)
+            currWindPeaks[-1].append(amplitude)
+
+
+
+    currWindPeaks= sorted(currWindPeaks, key=lambda x: x[1], reverse=True)
+    currWindPeaks = currWindPeaks[:3]
+    pitchStr = ""
+    for index, peak in enumerate(currWindPeaks):
+        pitchStr += " "
+        pitchStr += pitch(peak[0])
+    if len(peaksArr) != 0 and pitchStr ==  peaksArr[-1][0]:
+            peaksArr[-1][1] = winPos
+    else:
+            peaksArr.append([])
+            peaksArr[-1].append(pitchStr)
+            peaksArr[-1].append(winPos)
+            peaksArr[-1].append(winPos-0.1)
+
+    winPos = winPos + 0.1
+
+    del data[:(int(framerate * 0.1))]
+
+    if winPos -0.1 + 1 < duration:
+        frames = sound_file.readframes(int(framerate * 0.1))
+        dat2 = convertStereo(structUnpackFun(frames, nOfChannels * framerate * 0.1))
+        data += dat2
+
+    if (duration - winPos < 0.9): break
+
+for peak in peaksArr:
+    if (peak[2]) == 0: peak[2] = "00.0"
+    else: peak[2] = str(round(peak[2],2)).zfill(2)
+    print( peak[2] + "-"  + str(round(peak[1],2)).zfill(2) + peak[0])
+
+
+
+
+
+
+#absArr =np.array_split(absArr, repeated*10)
