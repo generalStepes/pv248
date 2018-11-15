@@ -26,7 +26,7 @@ def pitch(freq):
         totalName = totalName[0].upper() + totalName[1:]
     if h // 12 > 2:
         for item in range(0,h // 12 - 3):
-            totalName = totalName + "’"
+            totalName = totalName + "'"
     if deviation > 0: totalName = totalName + ("+") + str(deviation)
     else: totalName + str(deviation)
     return totalName
@@ -53,7 +53,7 @@ def returnAvg(data, framerate):
     amplNp = np.fft.rfft(data)
     amplNp = np.abs(amplNp)
 
-    avgAmpl = sum(amplNp) / len(amplNp)
+    avgAmpl = np.average(amplNp)
     return (avgAmpl*20, amplNp)
 
 
@@ -68,7 +68,9 @@ data = structUnpackFun(frames, nOfChannels * framerate)
 
 
 
-if (nOfChannels == 2): data = convertStereo(data)
+if (nOfChannels == 2):
+    data = convertStereo(data)
+else: data = list(data)
 
 winPos = 0.1
 globalPeaks = []
@@ -88,6 +90,7 @@ for i in range(0,repeated):
 
     currWindPeaks= sorted(currWindPeaks, key=lambda x: x[1], reverse=True)
     currWindPeaks = currWindPeaks[:3]
+    currWindPeaks = sorted(currWindPeaks, key=lambda x: x[0], reverse=False)
     pitchStr = ""
     for index, peak in enumerate(currWindPeaks):
         pitchStr += " "
@@ -103,17 +106,20 @@ for i in range(0,repeated):
     winPos = winPos + 0.1
 
     del data[:(int(framerate * 0.1))]
+    #data = data[(int(framerate * 0.1)):]
 
     if winPos -0.1 + 1 < duration:
         frames = sound_file.readframes(int(framerate * 0.1))
-        dat2 = convertStereo(structUnpackFun(frames, nOfChannels * framerate * 0.1))
-        data += dat2
+        if (nOfChannels == 2):
+            dat2 = convertStereo(structUnpackFun(frames, nOfChannels * framerate * 0.1))
 
+        else:
+            dat2 = structUnpackFun(frames, nOfChannels * framerate * 0.1)
+        data += dat2
     if (duration - winPos < 0.9): break
 
 for peak in peaksArr:
-    if (peak[2]) == 0: peak[2] = "00.0"
-    else: peak[2] = str(round(peak[2],2)).zfill(2)
+    peak[2] = str(round(peak[2],2)).zfill(2)
     print( peak[2] + "-"  + str(round(peak[1],2)).zfill(2) + peak[0])
 
 
@@ -122,3 +128,6 @@ for peak in peaksArr:
 
 
 #absArr =np.array_split(absArr, repeated*10)
+
+
+
