@@ -28,7 +28,8 @@ def pitch(freq):
         for item in range(0,h // 12 - 3):
             totalName = totalName + "'"
     if deviation > 0: totalName = totalName + ("+") + str(deviation)
-    else: totalName + str(deviation)
+    else:
+        totalName = totalName + str(deviation)
     return totalName
 
 
