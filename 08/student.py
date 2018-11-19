@@ -15,7 +15,7 @@ def aggregateStuff(file):
         aggPoints.append(sum(file[column])/numberOfStudent)
     aggPoints = pd.Series(aggPoints)
     aggPoints.index = columns[1:]
-    print(aggPoints)
+    #print(aggPoints)
     return(aggPoints)
 
 
@@ -57,12 +57,15 @@ def getCumPoints(file, columns, uniqueDates):
 
 
 if sys.argv[2] != "average":
-    selectedStudent = file[file["student"]==int(sys.argv[2])]
-    selectedStudent = selectedStudent.T
-    selectedStudent = selectedStudent[0]
-    selectedStudent = selectedStudent.drop("student")
+    selectedStudentPre = file[file["student"]==int(sys.argv[2])]
+    selectedStudent = []
+    for column in columns[1:]:
+        selectedStudent.append(selectedStudentPre[column].values[0])
+    selectedStudent = pd.Series(selectedStudent)
+    selectedStudent.index = columns[1:]
 else:
     selectedStudent = aggregateStuff(file)
+
 indexes = selectedStudent.index
 execDict = {}
 
@@ -79,7 +82,7 @@ for i, row in enumerate(selectedStudent):
 execDict = pd.Series(execDict)
 
 dateArr= {}
-dateArr["mean"] = round(mean(execDict), 1)
+dateArr["mean"] = round(mean(execDict), 2)
 dateArr["median"] = round(median(execDict),1)
 dateArr["total"] = round(sum(execDict),2)
 

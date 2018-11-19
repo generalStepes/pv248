@@ -36,11 +36,13 @@ def dates(columns):
             dateArr[colName] = curFile
         else:
             dateArr[colName] = pd.concat([curFile, dateArr[colName]])
+            #dateArr[colName] = dateArr[colName].nlargest(len(curFile))
+
     varDict = countStat(dateArr)
     print(json.dumps(varDict, ensure_ascii=False, indent=2))
 
 
-
+\
 
 def deadlines(columns):
     dateArr = {}
@@ -67,8 +69,11 @@ def exercises(columns):
         curFile.name = (curExec)
         if curExec not in dateArr:
             dateArr[curExec] = curFile
+
         else:
             dateArr[curExec] = pd.concat([curFile, dateArr[curExec]])
+            dateArr[curExec]= dateArr[curExec].nlargest(len(curFile))
+
     varDict = countStat(dateArr)
     print(json.dumps(varDict, ensure_ascii=False, indent=2))
 
