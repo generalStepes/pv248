@@ -35,7 +35,8 @@ def dates(columns):
         if colName not in dateArr:
             dateArr[colName] = curFile
         else:
-            dateArr[colName] = pd.concat([curFile, dateArr[colName]])
+            #dateArr[colName] = pd.concat([curFile, dateArr[colName]])
+            dateArr[colName] = curFile + dateArr[colName]
             #dateArr[colName] = dateArr[colName].nlargest(len(curFile))
 
     varDict = countStat(dateArr)
