@@ -5,7 +5,7 @@ import json
 import sys
 
 hostName = "localhost"
-hostPort = 9000
+hostPort = int(sys.argv[1])
 responseDict = {}
 
 def httpClientFun(url,headers, timeout, content, requestType):
