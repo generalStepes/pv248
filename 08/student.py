@@ -82,9 +82,9 @@ for i, row in enumerate(selectedStudent):
 execDict = pd.Series(execDict)
 
 dateArr= {}
-dateArr["mean"] = round(mean(execDict), 2)
-dateArr["median"] = round(median(execDict),1)
-dateArr["total"] = round(sum(execDict),2)
+dateArr["mean"] = round(mean(execDict), 15)
+dateArr["median"] = round(median(execDict),15)
+dateArr["total"] = round(sum(execDict),15)
 
 counter = 0
 for note in execDict:
@@ -95,10 +95,15 @@ datesSinceBeg, uniqueDates = getDates(columns)
 cumPoints = getCumPoints(selectedStudent, columns, uniqueDates)
 #slope, intercept, r_value, p_value, std_err = stats.linregress(cumPoints, datesSinceBeg)
 slope = optimize.curve_fit(lambda x, m: m*x, datesSinceBeg, cumPoints)[0][0]
-dateArr["regression slope"] = round(slope, 1)
+dateArr["regression slope"] = round(slope, 15)
 
-sixteenPoints, twentyPoints = daysTillBang(slope)
-dateArr["date 16"] = sixteenPoints
-dateArr["date 20"] = twentyPoints
+if slope != 0:
+    sixteenPoints, twentyPoints = daysTillBang(slope)
+    dateArr["date 16"] = sixteenPoints
+    dateArr["date 20"] = twentyPoints
+else:
+    dateArr["date 16"] = "inf"
+    dateArr["date 20"] = "inf"
+
 
 print(json.dumps(dateArr, ensure_ascii=False, indent=2))

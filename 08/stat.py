@@ -51,7 +51,8 @@ def deadlines(columns):
         counter = 0
         for row in (file[columns[i]]):
             if row >= 1: counter += 1
-        colName = "%02d" % (i,)
+        #colName = "%02d" % (i,)
+        colName = file[columns[i]].name
         dateArr[colName] = {}
         dateArr[colName]["passed"] = counter
         dateArr[colName]["mean"] = round(mean(file[columns[i]]), 2)
@@ -68,6 +69,7 @@ def exercises(columns):
         slashIndex = (columns[i].find("/"))
         curExec = (columns[i][slashIndex+1:])
         curFile.name = (curExec)
+        #curExec = "%02d" % (i,)
         if curExec not in dateArr:
             dateArr[curExec] = curFile
 
