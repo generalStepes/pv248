@@ -33,7 +33,7 @@ def getDates(columns):
     semBeg = datetime.strptime("2018-09-17", "%Y-%m-%d")
     datesSinceBeg = []
     uniqueDates = []
-    for date in columns[1:]:
+    for date in columns[0:]:
         slash = date.find("/")
         date = date[:slash]
         date = date.strip(" ")
@@ -45,16 +45,15 @@ def getDates(columns):
             datesSinceBeg.append(dateDiff)
     return(datesSinceBeg, uniqueDates)
 
-def getCumPoints(file, columns, uniqueDates):
+def getCumPoints(selStudent, columns, uniqueDates):
     dateArr = []
     cumulTemp = 0
     for date in uniqueDates:
         for column in columns:
             if (column.find(date)) != -1:
-                cumulTemp += file[column]
+                cumulTemp += selStudent[column]
         dateArr.append(cumulTemp)
     return dateArr
-
 
 if sys.argv[2] != "average":
     selectedStudentPre = file[file["student"]==int(sys.argv[2])]
@@ -65,7 +64,8 @@ if sys.argv[2] != "average":
     selectedStudent.index = columns[1:]
 else:
     selectedStudent = aggregateStuff(file)
-
+selectedStudent = selectedStudent.sort_index()
+columns = (list(selectedStudent.index))
 indexes = selectedStudent.index
 execDict = {}
 
