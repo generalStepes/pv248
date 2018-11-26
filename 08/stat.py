@@ -11,7 +11,7 @@ def countStat(dateArr):
     varDict = {}
     for exercise in dateArr:
         if exercise not in varDict: varDict[exercise] = {}
-        varDict[exercise]["mean"] = round(mean(dateArr[exercise]), 2)
+        varDict[exercise]["mean"] = round(mean(dateArr[exercise]), 15)
         varDict[exercise]["median"] = median(dateArr[exercise])
         varDict[exercise]["first"] = dateArr[exercise].quantile(.25)
         varDict[exercise]["last"] = dateArr[exercise].quantile(.75)
@@ -55,7 +55,7 @@ def deadlines(columns):
         colName = file[columns[i]].name
         dateArr[colName] = {}
         dateArr[colName]["passed"] = counter
-        dateArr[colName]["mean"] = round(mean(file[columns[i]]), 2)
+        dateArr[colName]["mean"] = round(mean(file[columns[i]]), 15)
         dateArr[colName]["median"] = median(file[columns[i]])
         dateArr[colName]["first"] = file[columns[i]].quantile(.25)
         dateArr[colName]["last"] = file[columns[i]].quantile(0.75)
