@@ -12,6 +12,7 @@ def httpClientFun(url,headers, timeout, content, requestType):
         url, params = cleanAddress(url)
         #print(headers)
         try:
+            content = content.encode("utf-8", "ignore")
             conn = http.client.HTTPSConnection(url, context=ssl._create_unverified_context(), timeout=timeout)
             if requestType == "POST": conn.request(requestType, params, content, headers = headers)
             else: conn.request(requestType, params, headers = headers)
