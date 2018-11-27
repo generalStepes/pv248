@@ -43,7 +43,7 @@ def cleanAddress(url):
         urlParsed = url
         params = "/"
         if port != -1:  port = url[port+1:]
-    if port != -1: urlParsed = urlParsed[:urlParsed.find(port)-1]
+    if port != -1: urlParsed = urlParsed[:+urlParsed.find(":"+port)]
     if port == -1: port = 80
 
     return urlParsed, params, port
