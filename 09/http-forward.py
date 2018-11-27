@@ -9,16 +9,18 @@ hostPort = int(sys.argv[1])
 responseDict = {}
 
 def httpClientFun(url,headers, timeout, content, requestType):
-        url, params = cleanAddress(url)
-        #print(headers)
+        url, params, port = cleanAddress(url)
+        print(url,params,port)
         try:
             content = content.encode("utf-8", "ignore")
-            conn = http.client.HTTPSConnection(url, context=ssl._create_unverified_context(), timeout=timeout)
-            if requestType == "POST": conn.request(requestType, params, content, headers = headers)
-            else: conn.request(requestType, params, headers = headers)
-            r1 = conn.getresponse()
         except:
-            return (None, None, None, "True")
+            pass
+        conn = http.client.HTTPConnection(url, port = port, timeout=timeout)
+        if requestType == "POST": conn.request(requestType, params, content, headers = headers)
+        else:
+            conn.request(requestType, params)
+        r1 = conn.getresponse()
+        #return (None, None, None, "True")
         headers = r1.getheaders()
         status = r1.status
         sourceCode = r1.read().decode("utf-8", "ignore")
@@ -29,8 +31,10 @@ def cleanAddress(url):
     url = url.replace("https://","")
     url = url.replace("http://","")
     slash = url.find("/")
+    port = url.find(":")
     if slash != -1:
         urlParsed = url[:slash]
+        if port != -1: port = url[port+1:slash]
         try:
             params = url[slash:]
         except:
@@ -38,7 +42,11 @@ def cleanAddress(url):
     else:
         urlParsed = url
         params = "/"
-    return urlParsed, params
+        if port != -1:  port = url[port+1:]
+    if port != -1: urlParsed = urlParsed[:urlParsed.find(port)-1]
+    if port == -1: port = 80
+
+    return urlParsed, params, port
 
 def parseHeaders(headers):
     headersDict = {}
