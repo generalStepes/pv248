@@ -29,7 +29,9 @@ def pitch(freq):
             totalName = totalName + "'"
     if deviation > 0: totalName = totalName + ("+") + str(deviation)
     else:
-        totalName = totalName + str(deviation)
+        if deviation == 0: totalName = totalName + "+" + str(deviation)
+        else: totalName = totalName +str(deviation)
+
     return totalName
 
 
@@ -129,6 +131,3 @@ for peak in peaksArr:
 
 
 #absArr =np.array_split(absArr, repeated*10)
-
-
-
