@@ -10,7 +10,7 @@ responseDict = {}
 
 def httpClientFun(url,headers, timeout, content, requestType):
         url, params, port = cleanAddress(url)
-        print(url,params,port)
+        #print(url,params,port)
         try:
             content = content.encode("utf-8", "ignore")
         except:
