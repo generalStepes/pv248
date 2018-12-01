@@ -114,10 +114,12 @@ class RequestHandler(BaseHTTPRequestHandler):
         try:
             content = load["content"]
         except:
-            responseDict["code"] = "invalid json"
-            connFailed = "NotExist"
-            sourceCode = None
-            status = None
+            if requestType == "POST":
+                responseDict["code"] = "invalid json"
+                connFailed = "NotExist"
+                sourceCode = None
+                status = None
+            else: content = None
         if "code" not in responseDict: headers, status, sourceCode, connFailed = httpClientFun(url, headers, timeout, content, requestType)
         if connFailed == "False": responseDict["headers"] = parseHeaders(headers)
         parseContent(sourceCode, status, connFailed)
