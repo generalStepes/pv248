@@ -7,14 +7,23 @@ import sys
 import urllib
 import os
 import logging
+import json
 
-def parseFileName(item):
+def parseFileNameGet(item):
     filePath = (sys.argv[2] + item.path)
     fileSize = os.path.getsize(filePath)
     return filePath, fileSize
 
-def processStuff(self):
-    filePath, fileSize = parseFileName(self)
+def parseFileNamePost(item):
+    filePath = (sys.argv[2] + "/" + item)
+    fileSize = os.path.getsize(filePath)
+    return filePath, fileSize
+
+def processStuff(self, requestType):
+    if requestType == "POST":
+        load = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+        filePath, fileSize = parseFileNamePost(load["content"])
+    if requestType == "GET": filePath, fileSize = parseFileNameGet(self)
     if (filePath.endswith(".cgi")):
             self.cgi_info = '', filePath
             self.run_cgi()
@@ -37,9 +46,9 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
 def createHandler():
     class Handler(CGIHTTPRequestHandler):
         def do_GET(self):
-            processStuff(self)
+            processStuff(self, "GET")
         def do_POST(self):
-            processStuff(self)
+            processStuff(self, "POST")
         def do_HEAD(self):
             processStuff(self)
     return Handler
