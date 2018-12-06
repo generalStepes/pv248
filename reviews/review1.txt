@@ -1,0 +1,170 @@
+review od 433474 *0.5
+/komentar/
+
+Postrehy jsou k veci, bez pochyby mi pomuzou s opravou chyb ve cvicenich, ktere mi neprosly testy. Navic se casto tykaji kodu, ktery jsem vlivem casove tisne odfakl, takze je dobre s k nemu vratit.
+
+
+
+----
+HW01
+----
+
+Nemam ziadne poznamky k funkcionalite, vsetky moje testovacie pripady presli.
+
+Drobne postrehy:
+
+* zachytavanie prilis general vynimok ako napr.:
+	try:												[line 52]
+        splitLine[1] = (splitLine[1].strip())
+    except:
+        pass
+
+    --> neviem aky je zamer, ale mozno by bolo dobre aspon uviest, aku vynimku chces zachytit, ale "ignorovat"
+
+* pomenovanie premennej "centuryFinder" naznacuje, ze "centuryFinder" je objekt, ktory sluzi na hladanie, volila by som viac popisnejsi nazov
+
+* python samotny ma par silnych odporucani, co sa stylu tyka (hovorme tomu standard), kedy napriklad zapis nazvov funkcii a premennych by mal byt v tomto tvare:
+	my_variable / my_function namiesto myVariable / myFunction
+
+	viac tu: https://www.python.org/dev/peps/pep-0008/#naming-conventions
+
+* nadbytocne zatvorky v podmienenom vyraze:
+	if (item==person):			[line 18]
+	--> staci: if item == person
+	--> taktiez zapis medzier okolo operatoru == pomaha citatelnoti podmienky
+
+* nadbytocne porovnavanie s Bool hodnotou
+	if checker==False			[line 20]
+	--> ekvivalentny zapis: if checker
+
+* toto je pomerne magicka konstanta a je tazko pochopitelne, preco takuto podmienku overujes:
+	if item == 21:				[line 70]
+	--> zasluzilo by si to aspon vysvetlenie komentarom, alebo ulozit cislo 21 do premennej, ktorej nazov by
+	ozrejmil, preco chces tna takyto pripad reagova specificky
+
+* inak sa mi pomerne pacila dekompozicia na funkcie, ktorych nazvy odopvedali ich funkcionalite
+
+
+----
+HW05
+----
+
+Nasla som niekolko pripadov, kedy funkcionalita nepresla mojimi drobnymi testami a program nefungoval spravne v nasledujucich pripadoch:
+
+* #1
+-> vstup:
+
+x + y = 4
+x + y = 5
+
+-> ocakavany vystup: no solution
+-> skutocny vystup: solution space dimension: 1
+
+Sustava na vstupe na prvy pohlad nema ziadne riesenie.
+Try except blok zacinajuci na riadku 65 nefunguje spravne (obsahuje logicku chybu), predovsetkym nasledujuce podmienene vyrazy:
+
+	except:
+    if len(usedAlfa) != matrixRank:
+            spaceDim = len(usedAlfa) - matrixRank
+            print("solution space dimension: " + str(spaceDim))
+
+    else:
+        if np.linalg.matrix_rank(extendedMatrix) != matrixRank:
+            print("no solution")
+
+--> ak np.linalg.solve vyhodi vynimku, znamena to, ze nebolo najdene jednoznacne riesenie (co je jasne)
+--> avsak ked sutava nema riesenie, moze sa stat, ze rank matice nebude zhodny s poctom pouzitych koeficientov
+tak ako v tomto pripade, kedy rank matice je 1, no pocet koeficientov 2; tym, ze tuto podmeinku kontrolujes ako prvu, okamzite usudis, ze sustava ma riesenie (hoci nie unikatne)
+--> odporucam: https://en.wikipedia.org/wiki/Augmented_matrix; specialne nasledujucu cast:
+"any system of linear equations is inconsistent (has no solutions) if the rank of the augmented matrix is greater than the rank of the coefficient matrix; if, on the other hand, the ranks of these two matrices are equal, the system must have at least one solution"
+
+* #2
+
+-> vstup:
+
+2x + 3y = 5
+x -  y = 0
+
+-> ocakavany vystup: x = 1.0, y = 1.0
+-> skutocny vystup: x = -5.0, y = 5.0
+
+--> sposob, ktorym parsujes koeficienty pre jednotlive premenne neosetruje moznost vyskuty viacerych medzier ci inych white spaces v zapise rovnice (parsovanie vo for cykle zacinajucom na riadku 30)
+	
+	for index, letter in enumerate(lineSplit[0]):
+
+--> osobne si nespominam, ci sme v zadani mali specifikovane, ze oddelovacom bude prave jedna medzera, ak ano, tak je tento test mozne povazovat za nadbytocny
+
+* #3
+
+-> vstup:
+
+-y -    z = 18
+5x -    4y + z = 22
+2x + 3y + 9z = - 221
+w   - x = 45
+
+-> ocakavany vystup: w = 71.75, x = 26.75, y = 18.749999999999996, z = -36.75
+-> skutocny vystup: program spadne s chybou
+
+	Traceback (most recent call last):
+	  File "/reviewStepan.py", line 29, in <module>
+	    constant = int(lineSplit[1].strip(" "))
+	ValueError: invalid literal for int() with base 10: '- 221'
+
+--> toto znova suvisi so sposobom parsovania, spominanym vyssie, kedy v retazci, ktory je predavany ako parameter pre int() ostane "- 221"
+
+* Vsetky moje ostatne testovacie pripady fungovali
+
+Par drobnych komentarov / postrehov:
+
+* pre mna osobne bol kod malo cleneny na funkcie a spociatku horsie citatelny,myslim si, ze ok nie do separatnych funkcii, dal by sa kod minimalne rozclenit na bloky oddelene komentarmi, vysvetlujucimi co sa v danom bloku deje
+
+* zapisy podmiennych vyrazov su nekonzistentne a/alebo obsahuju nadbytocne porovnania:
+	if (letter.isalpha() == True):		[line 31] 
+	--> nadbytocne zatvoky a tiez porovnanie s Bool hodnotou
+	--> nasaledujuci zapis je ekvivalentny: if letter.isalpha()
+	if letter.isalpha()== True: 		[line 14]
+	--> tiez nie je potrebne porovnavat s Bool hodnotou
+	--> if letter.isalpha():
+	if negate == True: 					[line 48]
+	--> if negate: 
+
+	kedze som si vsimla, ze sa to v tvojom kode opakovalo, drobne vysvetlenie: 
+	negate je Bool hotnota, tazke tato podmienka (a podobne podmienky) sa 
+	vhodnoti ako:
+	* if True: 
+	pripadne ako:
+	* if False:
+	a nie je potrebne porovnavat "if True == True:")
+
+* nejake tie nadbytocne zatvorky ako v tomto pripade:
+	   lineSplit = (line.split("="))	[line 27]
+
+* neviem ci nazov funkcie "usedAlfaFun" uplne vyjadruhe jej funkcionalitu -> pre mna z nazvu nebolo zrejme, ze funkcia ziskava vsetky koeficienty pouzite v sustave rovnic
+
+* podobny komentar k stylu pomenovania premenych a funkcii ako v HW01
+
+
+----
+HW06
+----
+
+Funkcionalita zase vyzera OK.
+
+Mam drobne postrehy:
+
+* je dobre nepomenuvavat funkcie a premenne rovnako ako vstavane funkcie, ktore python ma, konkretne:
+	max = 0				[line 6]
+	min = 0
+
+* podobny komentar k stylu pomenovania premenych a funkcii ako v HW01 a HW05
+
+* na riadku 47 znovu inicializujes premennu "i" napriek tomu, ze je to riadiaca premenna for cyklu, je vhodnejsie pouzit inu premennu
+
+* znovu trochu redundantne zatvorky v podmienenych vyrazoch napr.:
+
+	if (nOfChannels == 2): 			[line 43]
+
+* na konci kodu ostalo neikolko riadkov zakomentovanej funkcionality (ku ktorym nie je ani komentar, takze neviem usudit na co sluzili)
+
+* vsetkym programom by mozno pristala nejaka forma main() funkcie
