@@ -26,7 +26,7 @@ for line in file:
        coefficientArr.append(0)
    lineSplit = (line.split("="))
    lineSplit[1] = lineSplit[1].strip("\n")
-   constant = int(lineSplit[1].strip(" "))
+   constant = int(lineSplit[1].replace(" ",""))
    for index, letter in enumerate(lineSplit[0]):
         if (letter.isalpha() == True):
             i = -1
@@ -34,17 +34,21 @@ for line in file:
             negate = False
             while True:
                 curPos = lineSplit[0][index+i]
-                if curPos == "" or curPos == "-" or curPos== " ":
-                    if lineSplit[0][index+i-1] == "-": negate = True
+                if curPos.isalpha() == True or curPos == "+":
                     break
+                if curPos == "" or curPos == "-" or curPos== " ":
+                    if lineSplit[0][index+i-1] == "-":
+                        negate = True
                 else:
                     coefficient =  curPos + coefficient
+
                 i = i - 1
             #coefficient = lineSplit[0][index-1]
             if letter != lineSplit[0][index]: coefficientArr.append(0)
             if coefficient == " " or coefficient == "": coefficient = 1
             if coefficient == "-": coefficient = -1
-            else: coefficient = int(coefficient)
+            else:
+                if coefficient != "+": coefficient = int(coefficient)
             if negate == True:
                 coefficient = str(coefficient)
                 coefficient = "-" + coefficient
@@ -54,14 +58,13 @@ for line in file:
                 if alfa == lineSplit[0][index]: coefficientArr[index2] = (coefficient)
    leftMatrix.append(coefficientArr)
    rightMatrix.append(constant)
-
 leftMatrixN = np.array(leftMatrix)
 rightMatrixN = np.array(rightMatrix)
 matrixRank = np.linalg.matrix_rank(leftMatrixN)
 rightMatrixN = (np.expand_dims(rightMatrixN, axis=1))
 
 extendedMatrix = (np.hstack((leftMatrixN, rightMatrixN)))
-
+extendedMatrixRank = np.linalg.matrix_rank(matrixRank)
 try:
     results = np.linalg.solve(leftMatrix, rightMatrix)
     resultStr = "solution: "
@@ -70,7 +73,7 @@ try:
     resultStr = resultStr.strip(", ")
     print(resultStr)
 except:
-    if len(usedAlfa) != matrixRank:
+    if extendedMatrixRank != matrixRank:
             spaceDim = len(usedAlfa) - matrixRank
             print("solution space dimension: " + str(spaceDim))
 
