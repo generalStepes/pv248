@@ -41,7 +41,10 @@ def checkPlayer(selectedSession, id):
 
 @routes.get('/start')
 async def gameStart(request):
-    gameName = request.rel_url.query['name']
+    try:
+        gameName = request.rel_url.query['name']
+    except:
+        gameName = ""
     newSession = session(gameName, [[0, 0, 0], [0, 0, 0], [0, 0, 0]], 1, -1)
     sessionArr.append(newSession)
     response = {"id": len(sessionArr)}
