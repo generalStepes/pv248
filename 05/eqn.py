@@ -73,10 +73,8 @@ try:
     resultStr = resultStr.strip(", ")
     print(resultStr)
 except:
-    if extendedMatrixRank != matrixRank:
-            spaceDim = len(usedAlfa) - matrixRank
-            print("solution space dimension: " + str(spaceDim))
-
-    else:
-        if np.linalg.matrix_rank(extendedMatrix) != matrixRank:
+    if np.linalg.matrix_rank(extendedMatrix) != matrixRank:
             print("no solution")
+    else:
+                spaceDim = len(usedAlfa) - matrixRank
+                print("solution space dimension: " + str(spaceDim))
