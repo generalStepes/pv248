@@ -19,7 +19,7 @@ def pitch(freq):
     n = h % 12
     totalName = name[n]
     if h // 12 < 2:
-        totalName = totalName[0].upper()
+        totalName = totalName[0].upper() + totalName[1:]
         for item in range(0,h // 12):
             totalName = totalName + ","
     if h // 12 == 2:
