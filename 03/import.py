@@ -4,8 +4,8 @@ from scorelib import load
 import sys
 
 def checkScoreExits(record):
-    for row in c.execute("Select score.name, score.id from score"):
-      if (record.edition.composition.name == row[0]):
+    for row in c.execute("Select score.name, score.id, score.genre, score.key from score"):
+      if (record.edition.composition.name == row[0]) and (record.edition.composition.genre == row[2]) and (record.edition.composition.key == row[3]):
           return row[1]
     return -1
 
@@ -114,11 +114,11 @@ for record in data:
     storeEdition(compoID, record)
 
 
-#for row in c.execute("Select * from print"):
-# print(row)
+#for row in c.execute("Select score.id from print left outer join edition on print.edition = edition.id left outer join score on score.id=edition.score left outer join score_author on score.id = score_author.score left outer join person on person.id = score_author.composer join voice on voice.score = score.id where print.id = 683"):
+#    print(row)
 
-#for row in c.execute("Select score.id, score.name from print join edition on print.edition = edition.id join score on edition.score = score.id where print.id = 682 or print.id = 683"):
-#  print(row)
+#for row in c.execute("Select voice.name from print join edition on print.edition = edition.id join score on score.id=edition.score join voice on voice.score = score.id where print.id = 21"):
+#    print(row)
 
 #for row in c.execute("Select person.name from edition join edition_author on edition.id=edition_author.edition join person on edition_author.editor=person.id"):
 #    print(row)
